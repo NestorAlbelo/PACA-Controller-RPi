@@ -1,6 +1,13 @@
-//Este programa contiene la comunicacion desde la Raspberry
-//hacia el MBed, asi como el control de envio y llegada de
-//mensajes desde el modulo Wifi
+/*
+ * main.cc
+ *
+ *  Este programa contiene la comunicacion desde la Raspberry
+ *  hacia el MBed, asi como el control de envio y llegada de
+ *  mensajes desde el modulo Wifi
+ *
+ *  Created on: 15/6/2015
+ *      Author: Nestor
+ */
 
 #include "Librerias/libraries.h"
 #include "MBed.h"

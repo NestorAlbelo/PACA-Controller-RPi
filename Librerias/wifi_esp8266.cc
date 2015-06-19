@@ -2,7 +2,6 @@
 
 //*****************VARIABLES*****************//
 int fd_Wifi = -1;			//Contiene el ID de la conexion del Wifi
-
 //******************METODOS******************//
 
 //----------------------------------------------------------------------------------------
@@ -15,6 +14,7 @@ bool initWifi(){
 	//comprobamos que la conexion este bien establecida
 	if ((fd_Wifi = open(RUTA_WIFI, O_RDWR | O_NOCTTY | O_NDELAY)) == -1){
 		cout << "ERROR. La conexion Serial con el Wifi ESP8266 ha fallado, asegurese de que no este siendo utilizada por otro programa" << endl;
+		close(fd_Wifi);
 		return false;
 	}
 
@@ -42,7 +42,10 @@ bool initWifi(){
 //----------------------------------------------------------------------------------------
 void enviarMensajeWifi(string msg){
 	int length = msg.length();
+
+	//Esperamos unos milisegundos ya que si no el ESP8266 no puede gestionar todas peticiones
 	esperar(0.1);
+
 	//Inicializamos el mensaje a enviar
 	//----- TX BYTES -----
 	unsigned char tx_buffer[length+2];
@@ -66,9 +69,11 @@ void enviarMensajeWifi(string msg){
 	else{
 		cout << "ERROR.No se puede enviar ningun mensaje porque la conexion no esta establecida, por favor abra una conexion con el modulo Wifi ESP8266" << endl;
 	}
+
+	//Limpiamos el puntero y lo borramos de la memoria
 	p_tx_buffer = NULL;
 	delete p_tx_buffer;
-}//Final metodo enviarMensajeWifi(string mensaje)
+}//Final metodo enviarMensajeWifi(string msg)
 
 
 //----------------------------------------------------------------------------------------

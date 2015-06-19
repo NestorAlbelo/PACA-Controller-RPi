@@ -1,3 +1,10 @@
+/*
+ * MBed.cc
+ *
+ *  Created on: 15/6/2015
+ *      Author: Nestor
+ */
+
 #include "MBed.h"
 
 //*******************VARIABLES*********************
@@ -21,7 +28,7 @@ int buttonCtrl;							//Valor del boton de control
  *  Si existe algun error lo notificamos, sino
  *  mostramos un mensaje de confirmacion
  *
- *  @return bool Verdadero si todo ha salido bien y falso si ha habido algun error
+ *  @return bool Verdadero si to-do ha salido bien y falso si ha habido algun error
  */
 //----------------------------------------------------------------------------------------
 bool initMBed(){
@@ -69,7 +76,7 @@ bool initMBed(){
 	//Si todo ha salido bien mostramos el siguiente mensaje
 	cout << "La conexion serial con el MBed se establecio correctamente" << endl;
 	return true;
-}
+}//Final metodo initMBed()
 
 //----------------------------------------------------------------------------------------
 /**
