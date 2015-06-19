@@ -66,16 +66,19 @@ bool initMBed(){
 		cout << MBED_ERROR << endl;
 		serialClose(fd_MBed);                        //Cerramos la conexion serial
 		enviarMensajeWifi(MBED_ERROR);
-		return false;
+		return ERROR_RETURN;
 	}
 	cadena="";
 
 	//Inicializamos el Wifi ESP8266
 	while(!initWifi());
 
+	//Inicializamos el WatchDog
+	while(!initWatchDog(WATCHDOG_TIME));
+
 	//Si todo ha salido bien mostramos el siguiente mensaje
 	cout << "La conexion serial con el MBed se establecio correctamente" << endl;
-	return true;
+	return RETURN_OK;
 }//Final metodo initMBed()
 
 //----------------------------------------------------------------------------------------
@@ -175,7 +178,13 @@ void escucharMBed(){
 //----------------------------------------------------------------------------------------
 void loop(){
 	while (!salir){
+		//Mandamos retroalimentacion al WatchDog
+		keepAliveWatchDog();
+
 		escucharMBed();	//Modos enviado por los selectores del MBed
+
+		//Mandamos retroalimentacion al WatchDog
+		keepAliveWatchDog();
 
 		cout << endl << "Recibimos: " << mensajeRecibido << endl;			//DEJAR SOLO EN TEST!!!
 
@@ -191,5 +200,6 @@ void loop(){
 		}
 	}//Final while
 
+	cerrarConexionWatchDog();				 //Cerramos la conexion con el Watchdog
 	serialClose(fd_MBed);                    //Cerramos la conexion serial
 }//Final metodo loop()

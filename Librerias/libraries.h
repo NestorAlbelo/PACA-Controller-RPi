@@ -18,8 +18,12 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <wiringSerial.h>
+#include <linux/watchdog.h>
 
 using namespace std;
+
+#define ERROR_RETURN false
+#define RETURN_OK	 true
 
 
 #endif /* LIBRARIES_H_ */

@@ -2,6 +2,10 @@
 
 //*****************VARIABLES*****************//
 int fd_Wifi = -1;			//Contiene el ID de la conexion del Wifi
+//*******************************************//
+
+
+
 //******************METODOS******************//
 
 //----------------------------------------------------------------------------------------
@@ -15,7 +19,7 @@ bool initWifi(){
 	if ((fd_Wifi = open(RUTA_WIFI, O_RDWR | O_NOCTTY | O_NDELAY)) == -1){
 		cout << "ERROR. La conexion Serial con el Wifi ESP8266 ha fallado, asegurese de que no este siendo utilizada por otro programa" << endl;
 		close(fd_Wifi);
-		return false;
+		return ERROR_RETURN;
 	}
 
 	//Configuramos la conexion UART
@@ -29,7 +33,7 @@ bool initWifi(){
 	tcsetattr(fd_Wifi, TCSANOW, &options);
 
 	cout << "Conexion con el Wifi ESP8266 establecida con exito" << endl;
-	return true;
+	return RETURN_OK;
 }//Final metodo initWifi();
 
 
