@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <wiringSerial.h>
 #include <linux/watchdog.h>
+#include <sys/ioctl.h>
 
 using namespace std;
 
