@@ -20,13 +20,26 @@
 #define CONNECT "connect/"
 #define SALIR "-1/"
 #define FINAL_CADENA "/"
-#define PETICION_DATOS_PS3 "DATOS_MANDO_PS3"
 #define SEGUNDO 1000
 #define WATCHDOG_TIME 5
 #define SERIAL_ERROR "ERROR. La conexion serial con el MBed fallo, por favor reinicie el sistema"
 #define MBED_ERROR "ERROR. Reinicie el programa del MBed e inicialice este de nuevo"
 #define MANDO_NO_ENCONTRADO "Mando PS3 no conectado por favor asegurese de que se encuentra al alcance y con carga"
 //FINAL CONSTANTES MBED
+
+//ENUMS DE LOGS Y MODOS
+enum modes {
+	M_PS3 = 0, M_JOYSTICK = 1, M_AUTO = 2, M_OFF = 3
+};
+enum logs {
+	SIN_LOG = 0,
+	BOTON_CTRL_NO_PULSADO = 1,
+	BOTON_CTRL_PULSADO = 2,
+	FALLO_MOTORES = 4
+};
+//FINAL ENUMS
+
+
 
 //********************METODOS************************
 bool initMBed();

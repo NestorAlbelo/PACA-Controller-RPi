@@ -19,6 +19,10 @@ int fd_MBed = -1;						//Contiene el ID de la conexion serial del MBed
 Joystick joystick(RUTA_PS3);			//Referencia al mando PS3
 double ejeX,ejeY;						//Valores de los ejes izquierdos X e Y
 int buttonCtrl;							//Valor del boton de control
+
+//*************VECTORES DE MENSAJES****************
+string s_modos[] = {"Modo PS3. ", "Modo JOYSTICK. ", "Modo AUTO. ", "Modo OFF. "};
+string s_logs[]  = {"Todo esta OK.", "Boton de Control NO pulsado.", "Boton de Control pulsado."};
 //*************************************************
 
 
@@ -74,7 +78,7 @@ bool initMBed(){
 	while(!initWifi());
 
 	//Inicializamos el WatchDog
-	while(!initWatchDog(WATCHDOG_TIME));
+	//while(!initWatchDog(WATCHDOG_TIME));
 
 	//Si todo ha salido bien mostramos el siguiente mensaje
 	cout << "La conexion serial con el MBed se establecio correctamente" << endl;
@@ -93,24 +97,31 @@ void obtenerDatosPS3(){
 
 		//Si existe un evento con el mando
 		if (joystick.sample(&event)){
-			switch(event.number){
-				case START:
+			//Si es un BOTON
+			if(event.isButton()){
+				//Si es el boton de salida
+				if(event.number == START){
 					if(event.value == PULSADO)
 						salir = true;
-					break;
-				case PADL_X:										//Detectamos el Joystick izquierdo EJE X
-					ejeX = ((double)(event.value))/NORMALIZADOR;
-					break;
-				case PADL_Y:										//Detectamos el Joystick izquierdo EJE Y
-					ejeY = ((double)(event.value))/NORMALIZADOR;
-					break;
-				case L2:											//Detectamos el boton L2 (Boton de control)
-					buttonCtrl = event.value;
-					break;
-				default:											//Si es cualquier otro boton no hacemos nada
-					break;
+				}
+				//Si es el boton de control
+				else if(event.number == L2){
+					if(event.value == PULSADO || event.value == NO_PULSADO)
+						buttonCtrl = event.value;				
+				}
 			}
-		}
+			//Si es un AXIS
+			else if(event.isAxis()){
+				//Si movemos el Axis X
+				if(event.number == PADL_X){
+					ejeX = ((double)(event.value))/NORMALIZADOR;
+				}
+				//Si movemos el Axis Y
+				else if(event.number == PADL_Y){
+					ejeY = ((double)(event.value))/NORMALIZADOR;
+				}
+			}
+		}//Final if (joystick.sample(&event))
 	}
 	//Si el mando no esta conectado
 	else{
@@ -134,10 +145,10 @@ void enviarDatosPS3(){
 	//Formamos la cadena a enviar
 	datosAEnviar = to_string(ejeX) + "," + to_string(ejeY) + "," + to_string(buttonCtrl) + "/";
 
-	cout << "DATOS A ENVIAR: " << datosAEnviar << endl;
+	cout << "DATOS A ENVIAR: " << datosAEnviar << endl;				//DEJAR SOLO EN TEST!!!
 	//Enviamos la cadena formada
 	serialPuts(fd_MBed, datosAEnviar.c_str());
-	cout << "Enviamos los datos" << endl;
+	cout << "Enviamos los datos" << endl;							//DEJAR SOLO EN TEST!!!
 }//Final metodo enviarDatosPS3()
 
 
@@ -153,7 +164,9 @@ void escucharMBed(){
 
 	//Mientras no hayamos recogido el final de cadena
 	while(!final){
-		while(serialDataAvail(fd_MBed)){
+		//cout << "estoy dentro del !final" << endl;
+		//esperar(1);
+		if(serialDataAvail(fd_MBed)){
 			caracter = serialGetchar(fd_MBed);
 			if(caracter != FINAL_CADENA){		//Si no es el final de la cadena guardamos el valor
 				mensajeRecibido += caracter;
@@ -162,7 +175,7 @@ void escucharMBed(){
 			else{								//Si es el final de la cadena indicamos el fin
 				final = true;
 				fflush(stdout);
-				break;
+				//break;
 			}
 		}
 	}
@@ -177,17 +190,31 @@ void escucharMBed(){
  */
 //----------------------------------------------------------------------------------------
 void loop(){
+	int mensaje;
+	int modo, log;
 	while (!salir){
-		//Mandamos retroalimentacion al WatchDog
-		keepAliveWatchDog();
-
+		cout << "\nVamos a Escuchar al MBED" << endl;
 		escucharMBed();	//Modos enviado por los selectores del MBed
 
-		//Mandamos retroalimentacion al WatchDog
-		keepAliveWatchDog();
+		cout << "Recibimos: " << mensajeRecibido << endl;			//DEJAR SOLO EN TEST!!!
 
-		cout << endl << "Recibimos: " << mensajeRecibido << endl;			//DEJAR SOLO EN TEST!!!
+		//Decodificamos el mensaje
+		mensaje = atoi(mensajeRecibido.c_str());	//Ej: 12 -> 1 - Numero Modo / 2 - Numero Log
 
+		modo = mensaje / 10;						//Obtenemos la parte SUPERIOR del mensaje
+		log  = abs(mensaje) % 10;					//Obtenemos la parte INFERIOR del mensaje
+
+		//Si el modo es igual al de PS3 mandamos los datos
+		if(modo == M_PS3){
+			cout << "Nos piden datos del mando" << endl;			//DEJAR SOLO EN TEST!!!
+			enviarDatosPS3();
+		}
+
+		//Enviamos los datos al modulo Wifi
+		cout << "Enviamos mensaje al Wifi" << endl;				//DEJAR SOLO EN TEST!!!
+		enviarMensajeWifi((s_modos[modo]+s_logs[log]));
+
+		/*
 		//Si nos estan pidiendo los datos del mando
 		if(mensajeRecibido.compare(PETICION_DATOS_PS3) == 0){
 			cout << "Nos piden datos del mando" << endl;			//DEJAR SOLO EN TEST!!!
@@ -198,8 +225,10 @@ void loop(){
 			cout << "Enviamos mensaje al Wifi" << endl;				//DEJAR SOLO EN TEST!!!
 			enviarMensajeWifi(mensajeRecibido);
 		}
+		*/
+		cout << "Estoy al final del bucle loop" << endl; 
 	}//Final while
 
-	cerrarConexionWatchDog();				 //Cerramos la conexion con el Watchdog
+	//cerrarConexionWatchDog();				 //Cerramos la conexion con el Watchdog
 	serialClose(fd_MBed);                    //Cerramos la conexion serial
 }//Final metodo loop()
