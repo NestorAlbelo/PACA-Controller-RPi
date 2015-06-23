@@ -20,6 +20,7 @@
 #include <wiringSerial.h>
 #include <linux/watchdog.h>
 #include <sys/ioctl.h>
+#include <math.h>
 
 using namespace std;
 

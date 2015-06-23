@@ -48,7 +48,7 @@ void enviarMensajeWifi(string msg){
 	int length = msg.length();
 
 	//Esperamos unos milisegundos ya que si no el ESP8266 no puede gestionar todas peticiones
-	esperar(0.1);
+	//esperar(0.1);
 
 	//Inicializamos el mensaje a enviar
 	//----- TX BYTES -----
